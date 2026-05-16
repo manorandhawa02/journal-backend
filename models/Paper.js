@@ -7,14 +7,16 @@ const paperSchema = new mongoose.Schema({
   },
   abstract: {
     type: String,
-    required: true
+    // required: true
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
   },
   fileUrl: {
-    type: String // for later (PDF link)
+    type: String ,// for later (PDF link)
+    required: true
+
   },
   consentGiven: {
     type: Boolean,
@@ -23,7 +25,7 @@ const paperSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ["submitted", "under review", "accepted", "rejected"],
-    default: "submitted"
+    default: "under review"
   }
 }, { timestamps: true });
 
