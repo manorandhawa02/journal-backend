@@ -1,5 +1,4 @@
 const express = require("express");
-const cors = require("cors");
 require("dotenv").config();
 
 const connectDB = require("./config/db");
@@ -13,14 +12,21 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors());
+const cors = require("cors");
+
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes ✅ ADD THIS
-app.use("/api/auth", authRoutes);
-app.use("/api/journals", require("./routes/journalRoutes"));
-app.use("/api/papers", paperRoutes);
-app.use("/api/reviews", require("./routes/reviewRoutes"));
+
+
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/journal", require("./routes/journalRoutes"));
+app.use("/api/paper", require("./routes/paperRoutes"));
+app.use("/api/review", require("./routes/reviewRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 
 

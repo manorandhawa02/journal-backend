@@ -1,45 +1,92 @@
+const Paper = require("../models/Paper");
 const Review = require("../models/Review");
+const User = require("../models/User");
 
-
-// ADD REVIEW
-exports.addReview = async (req, res) => {
+// ================= ASSIGN REVIEWER =================
+exports.assignReviewer = async (req, res) => {
   try {
-    const { comment, decision } = req.body;
+    const { reviewerId } = req.body;
 
+    const paper = await Paper.findById(req.params.id);
+
+    if (!paper) {
+      return res.status(404).json({ message: "Paper not found" });
+    }
+
+    // add reviewer if not already assigned
+    if (!paper.assignedReviewers.includes(reviewerId)) {
+      paper.assignedReviewers.push(reviewerId);
+    }
+
+    // create review record
     const review = await Review.create({
-      paper: req.params.paperId,
-      reviewer: req.user.id,
-      comment,
-      decision
+      paper: paper._id,
+      reviewer: reviewerId,
+      status: "Pending",
     });
 
-    res.status(201).json({
-      message: "Review added successfully",
-      review
-    });
+    paper.reviews.push(review._id);
 
+    await paper.save();
+
+    res.json({
+      message: "Reviewer assigned successfully",
+      paper,
+    });
   } catch (error) {
-    res.status(500).json({
-      error: error.message
-    });
+    res.status(500).json({ error: error.message });
   }
 };
 
 
-// GET REVIEWS OF PAPER
-exports.getReviewsByPaper = async (req, res) => {
+// ================= SUBMIT REVIEW =================
+
+
+exports.submitReview = async (req, res) => {
   try {
-    const reviews = await Review.find({
-      paper: req.params.paperId
-    })
-    .populate("reviewer", "name email role")
-    .sort({ createdAt: -1 });
+    const { commentsToAuthor, confidentialComments, recommendation, rating } =
+      req.body;
 
-    res.json(reviews);
-
-  } catch (error) {
-    res.status(500).json({
-      error: error.message
+    const review = await Review.findOne({
+      paper: req.params.id,
+      reviewer: req.user.id,
     });
+
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    review.commentsToAuthor = commentsToAuthor;
+    review.confidentialComments = confidentialComments;
+    review.recommendation = recommendation;
+    review.rating = rating;
+    review.status = "Submitted";
+    review.submittedAt = new Date();
+
+    await review.save();
+
+    res.json({
+      message: "Review submitted successfully",
+      review,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
+
+
+// ================= Get Assigned papers =================
+
+exports.getAssignedPapers = async (req, res) => {
+  try {
+    const papers = await Paper.find({
+      assignedReviewers: req.user.id,
+    }).populate("author", "name email");
+
+    res.json(papers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+

@@ -1,32 +1,83 @@
 const mongoose = require("mongoose");
 
 const paperSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true
-  },
-  abstract: {
-    type: String,
-    // required: true
-  },
-  author: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
-  },
-  fileUrl: {
-    type: String ,// for later (PDF link)
-    required: true
+   title: String,
+    abstract: String,
+    keywords: [String],
 
+    manuscriptFile: String,
+    supplementaryFiles: [String],
+
+    submittedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+
+    assignedReviewers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+
+    reviews: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Review",
+      },
+    ],
+
+    status: {
+      type: String,
+      enum: [
+        "Draft",
+        "Submitted",
+        "Initial Screening",
+        "Under Review",
+        "Minor Revision",
+        "Major Revision",
+        "Accepted",
+        "Rejected",
+        "Copyediting",
+        "Published",
+      ],
+      default: "Submitted",
+    },
+
+    revisionRound: {
+      type: Number,
+      default: 0,
+    },
+
+    timeline: [
+      {
+        action: String,
+        date: {
+          type: Date,
+          default: Date.now,
+        },
+        by: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      },
+    ],
+
+    editorDecision: {
+      type: String,
+      enum: ["Pending", "Accepted", "Rejected", "Revision"],
+      default: "Pending",
+    },
+
+    blindReviewEnabled: {
+      type: Boolean,
+      default: true,
+    },
+
+    publishedAt: Date,
+    doi: String,
   },
-  consentGiven: {
-    type: Boolean,
-    required: true
-  },
-  status: {
-    type: String,
-    enum: ["submitted", "under review", "accepted", "rejected"],
-    default: "under review"
-  }
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("Paper", paperSchema);

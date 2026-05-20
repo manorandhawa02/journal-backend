@@ -8,39 +8,42 @@ exports.uploadPaper = async (req, res) => {
     console.log("BODY:", req.body);
     console.log("FILE:", req.file);
 
-    // Check file
     if (!req.file) {
-      return res.status(400).json({
-        error: "No file received"
-      });
+      return res.status(400).json({ error: "No file received" });
     }
 
-    // Get form data
-    const { title, abstract, consentGiven } = req.body;
+    const { title, abstract, consentGiven, keywords } = req.body;
 
-    // Upload file to Cloudinary
     const result = await cloudinary.uploader.upload(req.file.path, {
-      resource_type: "raw"
+      resource_type: "raw",
     });
 
-    // Save paper in MongoDB
     const paper = await Paper.create({
       title,
       abstract,
+      keywords: keywords ? keywords.split(",") : [],
       consentGiven,
       author: req.user.id,
-      fileUrl: result.secure_url
+      fileUrl: result.secure_url,
+
+      // 🔥 ADD WORKFLOW CORE
+      status: "Submitted",
+      revisionRound: 0,
+      timeline: [
+        {
+          action: "Paper Submitted",
+          by: req.user.id,
+        },
+      ],
     });
 
     res.status(201).json({
       message: "Paper uploaded successfully",
-      paper
+      paper,
     });
-
   } catch (error) {
-    res.status(500).json({
-      error: error.message
-    });
+    console.log(error);
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -102,21 +105,23 @@ exports.getPaperById = async (req, res) => {
 // ACCEPT PAPER
 exports.acceptPaper = async (req, res) => {
   try {
-    const paper = await Paper.findByIdAndUpdate(
-      req.params.id,
-      { status: "accepted" },
-      { new: true }
-    );
+    const paper = await Paper.findById(req.params.id);
+
+    paper.status = "Accepted";
+
+    paper.timeline.push({
+      action: "Paper Accepted by Editor",
+      by: req.user.id,
+    });
+
+    await paper.save();
 
     res.json({
       message: "Paper accepted",
-      paper
+      paper,
     });
-
   } catch (error) {
-    res.status(500).json({
-      error: error.message
-    });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -124,24 +129,48 @@ exports.acceptPaper = async (req, res) => {
 // REJECT PAPER
 exports.rejectPaper = async (req, res) => {
   try {
-    const paper = await Paper.findByIdAndUpdate(
-      req.params.id,
-      { status: "rejected" },
-      { new: true }
-    );
+    const { reason } = req.body;
+
+    const paper = await Paper.findById(req.params.id);
+
+    paper.status = "Rejected";
+
+    paper.timeline.push({
+      action: `Paper Rejected: ${reason || "No reason provided"}`,
+      by: req.user.id,
+    });
+
+    await paper.save();
 
     res.json({
       message: "Paper rejected",
-      paper
+      paper,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//👉 MOVE TO REVIEW STAGE
+exports.moveToReview = async (req, res) => {
+  try {
+    const paper = await Paper.findById(req.params.id);
+
+    paper.status = "Under Review";
+
+    paper.timeline.push({
+      action: "Moved to Peer Review Stage",
+      by: req.user.id,
     });
 
+    await paper.save();
+
+    res.json({
+      message: "Paper moved to review stage",
+      paper,
+    });
   } catch (error) {
-
-  console.log("UPLOAD ERROR:");
-  console.log(error);
-
-  res.status(500).json({
-    error: error.message
-  });
-}
+    res.status(500).json({ error: error.message });
+  }
 };

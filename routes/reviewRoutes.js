@@ -5,25 +5,33 @@ const { protect } = require("../middleware/authMiddleware");
 const { authorizeRoles } = require("../middleware/roleMiddleware");
 
 const {
-  addReview,
-  getReviewsByPaper
+  assignReviewer,
+  submitReview,
+  getAssignedPapers,
 } = require("../controllers/reviewController");
 
-
-// Reviewer adds review
+// ADMIN assigns reviewer
 router.post(
-  "/:paperId",
+  "/:id/assign",
   protect,
-  authorizeRoles("reviewer", "admin"),
-  addReview
+  authorizeRoles("admin"),
+  assignReviewer
 );
 
-
-// Anyone logged in can view reviews
-router.get(
-  "/:paperId",
+// REVIEWER submits review
+router.post(
+  "/:id/submit",
   protect,
-  getReviewsByPaper
+  authorizeRoles("reviewer"),
+  submitReview
+);
+
+// REVIEWER dashboard
+router.get(
+  "/assigned",
+  protect,
+  authorizeRoles("reviewer"),
+  getAssignedPapers
 );
 
 module.exports = router;
