@@ -5,8 +5,15 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes"); // ✅ ADD THIS
 const paperRoutes = require("./routes/paperRoutes");
 
+const notificationRoutes = require("./routes/notificationRoutes");
+
+app.use("/api/notifications", notificationRoutes);
 
 const app = express();
+
+const publishedRoutes = require("./routes/publishedRoutes");
+
+app.use("/api/published", publishedRoutes);
 
 // Connect DB
 connectDB();

@@ -48,7 +48,17 @@ const paperSchema = new mongoose.Schema({
       type: Number,
       default: 0,
     },
-
+    versions: [
+  {
+    version: Number,
+    fileUrl: String,
+    uploadedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    comment: String,
+  },
+],
     timeline: [
       {
         action: String,

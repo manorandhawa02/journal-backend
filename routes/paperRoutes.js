@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const upload = require("../middleware/uploadMiddleware");
+const { submitRevision } = require("../controllers/paperController");
 const { protect } = require("../middleware/authMiddleware");
 const { authorizeRoles } = require("../middleware/roleMiddleware");
 
@@ -47,6 +48,14 @@ router.put(
   protect,
   authorizeRoles("admin"),
   rejectPaper
+);
+
+// Revision
+router.put(
+  "/:id/revision",
+  protect,
+  upload.single("file"),
+  submitRevision
 );
 
 module.exports = router;

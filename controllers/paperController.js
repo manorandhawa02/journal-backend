@@ -174,3 +174,56 @@ exports.moveToReview = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+// ================= Submit revision =================
+
+exports.submitRevision = async (req, res) => {
+  try {
+    const { comment } = req.body;
+
+    const paper = await Paper.findById(req.params.id);
+
+    if (!paper) {
+      return res.status(404).json({ message: "Paper not found" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    // upload new version file
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      resource_type: "raw",
+    });
+
+    // increase revision round
+    paper.revisionRound += 1;
+
+    // add new version
+    paper.versions.push({
+      version: paper.revisionRound,
+      fileUrl: result.secure_url,
+      comment: comment || "Revision submitted",
+    });
+
+    // reset status back to review
+    paper.status = "Under Review";
+
+    // timeline update
+    paper.timeline.push({
+      action: `Revision Round ${paper.revisionRound} submitted`,
+      by: req.user.id,
+    });
+
+    await paper.save();
+
+    res.json({
+      message: "Revision submitted successfully",
+      paper,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
