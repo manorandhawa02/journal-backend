@@ -1,48 +1,48 @@
 const express = require("express");
+const app = express();
 require("dotenv").config();
 
-const connectDB = require("./config/db");
-const authRoutes = require("./routes/authRoutes"); // ✅ ADD THIS
-const paperRoutes = require("./routes/paperRoutes");
-
-const notificationRoutes = require("./routes/notificationRoutes");
-
-app.use("/api/notifications", notificationRoutes);
-
-const app = express();
-
-const publishedRoutes = require("./routes/publishedRoutes");
-
-app.use("/api/published", publishedRoutes);
-
-// Connect DB
-connectDB();
-
-// Middleware
 const cors = require("cors");
 
+// DB
+const connectDB = require("./config/db");
+
+// ROUTES
+const authRoutes = require("./routes/authRoutes");
+const paperRoutes = require("./routes/paperRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const journalRoutes = require("./routes/journalRoutes");
+const publishedRoutes = require("./routes/publishedRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+
+// ================= CONNECT DB =================
+connectDB();
+
+// ================= MIDDLEWARE =================
 app.use(cors({
   origin: "http://localhost:5173",
   credentials: true
 }));
+
 app.use(express.json());
 
-// Routes ✅ ADD THIS
+// ================= ROUTES =================
+app.use("/api/auth", authRoutes);
+app.use("/api/paper", paperRoutes);
+app.use("/api/review", reviewRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/journal", journalRoutes);
+app.use("/api/published", publishedRoutes);
+app.use("/api/notifications", notificationRoutes);
 
-
-app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/journal", require("./routes/journalRoutes"));
-app.use("/api/paper", require("./routes/paperRoutes"));
-app.use("/api/review", require("./routes/reviewRoutes"));
-app.use("/api/admin", require("./routes/adminRoutes"));
-
-
-// Test route
+// ================= TEST ROUTE =================
 app.get("/", (req, res) => {
-  res.send("Server Running...");
+  res.send("🚀 Server Running...");
 });
 
-const PORT = 5000;
+// ================= START SERVER =================
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

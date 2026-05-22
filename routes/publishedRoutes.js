@@ -10,8 +10,7 @@ const {
   getPublishedPaperById,
 } = require("../controllers/publishedController");
 
-
-// ================= PUBLISH PAPER (EDITOR ONLY) =================
+// publish (admin/editor only)
 router.post(
   "/publish/:id",
   protect,
@@ -19,20 +18,10 @@ router.post(
   publishPaper
 );
 
+// get all published
+router.get("/", protect, getPublishedPapers);
 
-// ================= GET ALL PUBLISHED PAPERS =================
-router.get(
-  "/",
-  protect,
-  getPublishedPapers
-);
-
-
-// ================= GET SINGLE PUBLISHED PAPER =================
-router.get(
-  "/:id",
-  protect,
-  getPublishedPaperById
-);
+// get single published
+router.get("/:id", protect, getPublishedPaperById);
 
 module.exports = router;

@@ -7,12 +7,10 @@ exports.publishPaper = async (req, res) => {
     const paper = await Paper.findById(req.params.id);
 
     if (!paper) {
-      return res.status(404).json({
-        message: "Paper not found",
-      });
+      return res.status(404).json({ message: "Paper not found" });
     }
 
-    // ONLY allow accepted papers
+    // IMPORTANT: keep status consistent (use CAPITAL letters everywhere)
     if (paper.status !== "Accepted") {
       return res.status(400).json({
         message: "Only accepted papers can be published",
@@ -23,13 +21,12 @@ exports.publishPaper = async (req, res) => {
       title: paper.title,
       abstract: paper.abstract,
       fileUrl: paper.fileUrl,
-      authors: [paper.author], // later we can expand this
+      authors: [paper.author],
       volume: req.body.volume || 1,
       issue: req.body.issue || 1,
-      doi: `10.1234/journal.${Date.now()}`,
+      doi: `10.1000/journal.${Date.now()}`,
     });
 
-    // update paper status
     paper.status = "Published";
     await paper.save();
 
@@ -37,45 +34,33 @@ exports.publishPaper = async (req, res) => {
       message: "Paper published successfully",
       published,
     });
+
   } catch (error) {
-    res.status(500).json({
-      error: error.message,
-    });
+    res.status(500).json({ error: error.message });
   }
 };
 
-// ================= GET ALL PUBLISHED PAPERS =================
+// ================= GET ALL =================
 exports.getPublishedPapers = async (req, res) => {
   try {
-    const papers = await PublishedPaper.find().sort({
-      publishedAt: -1,
-    });
-
+    const papers = await PublishedPaper.find().sort({ publishedAt: -1 });
     res.json(papers);
   } catch (error) {
-    res.status(500).json({
-      error: error.message,
-    });
+    res.status(500).json({ error: error.message });
   }
 };
 
-// ================= GET SINGLE PUBLISHED PAPER =================
+// ================= GET BY ID =================
 exports.getPublishedPaperById = async (req, res) => {
   try {
-    const paper = await PublishedPaper.findById(
-      req.params.id
-    );
+    const paper = await PublishedPaper.findById(req.params.id);
 
     if (!paper) {
-      return res.status(404).json({
-        message: "Not found",
-      });
+      return res.status(404).json({ message: "Not found" });
     }
 
     res.json(paper);
   } catch (error) {
-    res.status(500).json({
-      error: error.message,
-    });
+    res.status(500).json({ error: error.message });
   }
 };
