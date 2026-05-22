@@ -12,6 +12,10 @@ const paperSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    author: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+},
 
     assignedReviewers: [
       {

@@ -22,9 +22,9 @@ exports.uploadPaper = async (req, res) => {
       title,
       abstract,
       keywords: keywords ? keywords.split(",") : [],
-      consentGiven,
-      author: req.user.id,
-      fileUrl: result.secure_url,
+       submittedBy: req.user.id,          // ✅ FIX
+  manuscriptFile: result.secure_url, // ✅ FIX
+
 
       // 🔥 ADD WORKFLOW CORE
       status: "Submitted",
@@ -52,7 +52,7 @@ exports.uploadPaper = async (req, res) => {
 exports.getAllPapers = async (req, res) => {
   try {
     const papers = await Paper.find()
-      .populate("author", "name email role")
+      .populate("submittedBy", "name email role")
       .sort({ createdAt: -1 });
 
     res.json(papers);
@@ -69,7 +69,7 @@ exports.getAllPapers = async (req, res) => {
 exports.getMyPapers = async (req, res) => {
   try {
     const papers = await Paper.find({
-      author: req.user.id
+      submittedBy: req.user.id
     }).sort({ createdAt: -1 });
 
     res.json(papers);
