@@ -31,6 +31,7 @@ exports.assignReviewer = async (req, res) => {
     const review = await Review.create({
       paper: paper._id,
       reviewer: reviewerId,
+      commentsToAuthor: "Not provided yet",
       status: "Pending",
     });
 
@@ -62,12 +63,8 @@ exports.submitReview = async (req, res) => {
   try {
     const paperId = req.params.id;
 
-    const {
-      commentsToAuthor,
-      confidentialComments,
-      recommendation,
-      rating,
-    } = req.body;
+    const { commentsToAuthor, confidentialComments, recommendation, rating } =
+      req.body;
 
     const review = await Review.findOne({
       paper: paperId,
@@ -91,7 +88,15 @@ exports.submitReview = async (req, res) => {
     // Update paper based on review
     const paper = await Paper.findById(paperId);
 
-    paper.status = recommendation;
+    if (recommendation === "Accept") {
+      paper.status = "Accepted";
+    } else if (recommendation === "Reject") {
+      paper.status = "Rejected";
+    } else if (recommendation === "Minor Revision") {
+      paper.status = "Minor Revision";
+    } else if (recommendation === "Major Revision") {
+      paper.status = "Major Revision";
+    }
 
     paper.timeline = paper.timeline || [];
     paper.timeline.push({

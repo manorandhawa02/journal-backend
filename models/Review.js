@@ -16,7 +16,7 @@ const reviewSchema = new mongoose.Schema(
 
     commentsToAuthor: {
       type: String,
-      required: true,
+      default: "",
     },
 
     confidentialComments: {
