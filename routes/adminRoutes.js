@@ -5,16 +5,19 @@ const { protect } = require("../middleware/authMiddleware");
 const { authorizeRoles } = require("../middleware/roleMiddleware");
 
 const {
-  getDashboardStats
+  getDashboardStats,
+  getReviewers,
 } = require("../controllers/adminController");
 
+// ================= STATS =================
+router.get("/stats", protect, authorizeRoles("admin"), getDashboardStats);
 
-// ADMIN DASHBOARD
+// ================= REVIEWERS =================
 router.get(
-  "/stats",
+  "/reviewers",
   protect,
   authorizeRoles("admin"),
-  getDashboardStats
+  getReviewers
 );
 
 module.exports = router;

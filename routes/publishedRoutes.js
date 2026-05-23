@@ -1,8 +1,8 @@
 const express = require("express");
+
 const router = express.Router();
 
 const { protect } = require("../middleware/authMiddleware");
-const { authorizeRoles } = require("../middleware/roleMiddleware");
 
 const {
   publishPaper,
@@ -10,18 +10,30 @@ const {
   getPublishedPaperById,
 } = require("../controllers/publishedController");
 
-// publish (admin/editor only)
+const {
+  authorizeRoles,
+} = require("../middleware/roleMiddleware");
+
+// ================= PUBLISH =================
 router.post(
   "/publish/:id",
   protect,
-  authorizeRoles("admin", "editor"),
+  authorizeRoles("admin"),
   publishPaper
 );
 
-// get all published
-router.get("/", protect, getPublishedPapers);
+// ================= GET ALL =================
+router.get(
+  "/",
+  protect,
+  getPublishedPapers
+);
 
-// get single published
-router.get("/:id", protect, getPublishedPaperById);
+// ================= GET SINGLE =================
+router.get(
+  "/:id",
+  protect,
+  getPublishedPaperById
+);
 
 module.exports = router;

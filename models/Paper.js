@@ -1,21 +1,23 @@
 const mongoose = require("mongoose");
 
-const paperSchema = new mongoose.Schema({
-   title: String,
+const paperSchema = new mongoose.Schema(
+  {
+    title: String,
+
     abstract: String,
+
+    // ✅ ADD THIS
+    authorName: String,
+
     keywords: [String],
 
-    manuscriptFile: String,
-    supplementaryFiles: [String],
+    // ✅ uploaded pdf url
+    fileUrl: String,
 
     submittedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    author: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: "User",
-},
 
     assignedReviewers: [
       {
@@ -42,7 +44,6 @@ const paperSchema = new mongoose.Schema({
         "Major Revision",
         "Accepted",
         "Rejected",
-        "Copyediting",
         "Published",
       ],
       default: "Submitted",
@@ -52,24 +53,28 @@ const paperSchema = new mongoose.Schema({
       type: Number,
       default: 0,
     },
+
     versions: [
-  {
-    version: Number,
-    fileUrl: String,
-    uploadedAt: {
-      type: Date,
-      default: Date.now,
-    },
-    comment: String,
-  },
-],
+      {
+        version: Number,
+        fileUrl: String,
+        uploadedAt: {
+          type: Date,
+          default: Date.now,
+        },
+        comment: String,
+      },
+    ],
+
     timeline: [
       {
         action: String,
+
         date: {
           type: Date,
           default: Date.now,
         },
+
         by: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
@@ -89,6 +94,7 @@ const paperSchema = new mongoose.Schema({
     },
 
     publishedAt: Date,
+
     doi: String,
   },
   { timestamps: true }

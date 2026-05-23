@@ -7,25 +7,37 @@ exports.assignReviewer = async (req, res) => {
   try {
     const { reviewerId } = req.body;
 
+    console.log("ASSIGN HIT");
+    console.log(req.body);
+
     const paper = await Paper.findById(req.params.id);
 
     if (!paper) {
       return res.status(404).json({ message: "Paper not found" });
     }
 
-    // add reviewer if not already assigned
+    // initialize if undefined
+    if (!paper.assignedReviewers) {
+      paper.assignedReviewers = [];
+    }
+
     if (!paper.assignedReviewers.includes(reviewerId)) {
       paper.assignedReviewers.push(reviewerId);
     }
 
-    // create review record
     const review = await Review.create({
       paper: paper._id,
       reviewer: reviewerId,
       status: "Pending",
     });
 
+    if (!paper.reviews) {
+      paper.reviews = [];
+    }
+
     paper.reviews.push(review._id);
+
+    paper.status = "Under Review";
 
     await paper.save();
 
@@ -34,7 +46,8 @@ exports.assignReviewer = async (req, res) => {
       paper,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.log("ASSIGN ERROR:", error);
+    res.status(500).json({ message: error.message });
   }
 };
 
