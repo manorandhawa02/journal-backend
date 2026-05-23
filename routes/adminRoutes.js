@@ -12,6 +12,7 @@ const {
 // ================= STATS =================
 router.get("/stats", protect, authorizeRoles("admin"), getDashboardStats);
 
+
 // ================= REVIEWERS =================
 router.get(
   "/reviewers",
@@ -19,5 +20,15 @@ router.get(
   authorizeRoles("admin"),
   getReviewers
 );
+
+
+const {
+  getAdminStats,
+  getAuthorStats,
+} = require("../controllers/adminController");
+
+router.get("/stats", protect, authorizeRoles("admin"), getAdminStats);
+
+router.get("/author-stats", protect, getAuthorStats);
 
 module.exports = router;

@@ -32,7 +32,7 @@ exports.assignReviewers = async (req, res) => {
       return res.status(404).json({ message: "Paper not found" });
     }
 
-    paper.reviewers = reviewerIds;
+    paper.assignedReviewers = reviewerIds;
 
     paper.status = "Under Review";
 
@@ -83,5 +83,59 @@ exports.getDashboardStats = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getAuthorStats = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const total = await Paper.countDocuments({ submittedBy: userId });
+    const underReview = await Paper.countDocuments({
+      submittedBy: userId,
+      status: "Under Review",
+    });
+
+    const accepted = await Paper.countDocuments({
+      submittedBy: userId,
+      status: "Accepted",
+    });
+
+    const rejected = await Paper.countDocuments({
+      submittedBy: userId,
+      status: "Rejected",
+    });
+
+    res.json({ total, underReview, accepted, rejected });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+exports.getAdminStats = async (req, res) => {
+  try {
+    const total = await Paper.countDocuments();
+
+    const submitted = await Paper.countDocuments({ status: "Submitted" });
+    const underReview = await Paper.countDocuments({ status: "Under Review" });
+    const minor = await Paper.countDocuments({ status: "Minor Revision" });
+    const major = await Paper.countDocuments({ status: "Major Revision" });
+    const accepted = await Paper.countDocuments({ status: "Accepted" });
+    const rejected = await Paper.countDocuments({ status: "Rejected" });
+    const published = await Paper.countDocuments({ status: "Published" });
+
+    res.json({
+      total,
+      submitted,
+      underReview,
+      minor,
+      major,
+      accepted,
+      rejected,
+      published,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };

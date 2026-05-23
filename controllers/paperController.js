@@ -20,7 +20,7 @@ exports.uploadPaper = async (req, res) => {
       authorName,
       keywords: keywords ? keywords.split(",") : [],
       submittedBy: req.user.id,
-      manuscriptFile: result.secure_url,
+      fileUrl: result.secure_url,
       status: "Submitted",
       revisionRound: 0,
       timeline: [
@@ -45,8 +45,9 @@ exports.uploadPaper = async (req, res) => {
 exports.getAllPapers = async (req, res) => {
   try {
     const papers = await Paper.find()
-      .populate("submittedBy", "name email role")
-      .sort({ createdAt: -1 });
+  .populate("submittedBy", "name email role")
+  .populate("assignedReviewers", "name email")
+  .sort({ createdAt: -1 });
 
     res.json(papers);
   } catch (error) {
@@ -93,7 +94,7 @@ exports.acceptPaper = async (req, res) => {
     paper.status = "Accepted";
 
     paper.timeline.push({
-      action: "Accepted by Editor",
+      action: "Accepted by Admin",
       by: req.user.id,
     });
 

@@ -24,10 +24,10 @@ const reviewSchema = new mongoose.Schema(
     },
 
     recommendation: {
-      type: String,
-      enum: ["Accept", "Minor Revision", "Major Revision", "Reject"],
-      required: true,
-    },
+  type: String,
+  enum: ["Accept", "Minor Revision", "Major Revision", "Reject"],
+  default: "Minor Revision",
+},
 
     rating: {
       type: Number,

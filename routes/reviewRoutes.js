@@ -34,4 +34,7 @@ router.get(
   getAssignedPapers
 );
 
+
+router.get("/assigned", protect, authorizeRoles("reviewer"), getAssignedPapers);
+
 module.exports = router;
