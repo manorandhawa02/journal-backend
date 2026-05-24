@@ -35,6 +35,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/journal", journalRoutes);
 app.use("/api/published", publishedRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/uploads", express.static("uploads"));
 
 // ================= TEST ROUTE =================
 app.get("/", (req, res) => {
