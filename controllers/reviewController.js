@@ -10,40 +10,39 @@ exports.assignReviewer = async (req, res) => {
     const { reviewerId } = req.body;
     const paperId = req.params.id;
 
-    console.log("ASSIGN REVIEWER HIT:", { paperId, reviewerId });
-
     const paper = await Paper.findById(paperId);
 
     if (!paper) {
       return res.status(404).json({ message: "Paper not found" });
     }
 
-    // Ensure arrays exist
+    // ensure arrays exist
     paper.assignedReviewers = paper.assignedReviewers || [];
     paper.reviews = paper.reviews || [];
 
-    // Avoid duplicate reviewer assignment
+    // avoid duplicates
     if (!paper.assignedReviewers.includes(reviewerId)) {
       paper.assignedReviewers.push(reviewerId);
     }
 
-    // Create review entry
+    // ✅ CREATE REVIEW (THIS WAS MISSING)
     const review = await Review.create({
       paper: paper._id,
       reviewer: reviewerId,
-      commentsToAuthor: "Not provided yet",
+      commentsToAuthor: "",
+      confidentialComments: "",
+      recommendation: "",
+      rating: 1,
       status: "Pending",
     });
 
-    // Link review to paper
+    // link review to paper
     paper.reviews.push(review._id);
 
-    // Update paper status
     paper.status = "Under Review";
 
     await paper.save();
 
-    // Populate for response clarity
     await paper.populate("assignedReviewers", "name email");
 
     return res.json({
@@ -72,7 +71,9 @@ exports.submitReview = async (req, res) => {
     });
 
     if (!review) {
-      return res.status(404).json({ message: "Review not found" });
+      return res.status(404).json({
+        message: "Review record not found. Paper not properly assigned.",
+      });
     }
 
     // Update review fields
@@ -123,7 +124,7 @@ exports.submitReview = async (req, res) => {
 exports.getAssignedPapers = async (req, res) => {
   try {
     const papers = await Paper.find({
-      assignedReviewers: req.user.id,
+      assignedReviewers: { $in: [req.user.id] }
     }).populate("submittedBy");
 
     res.json(papers);
