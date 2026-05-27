@@ -29,9 +29,9 @@ exports.assignReviewer = async (req, res) => {
     const review = await Review.create({
       paper: paper._id,
       reviewer: reviewerId,
-      commentsToAuthor: "",
-      confidentialComments: "",
-      recommendation: "",
+      commentsToAuthor: "Pending review",
+      confidentialComments: "Pending review",
+      recommendation: "Minor Revision",
       rating: 1,
       status: "Pending",
     });

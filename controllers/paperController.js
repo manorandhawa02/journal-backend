@@ -7,10 +7,11 @@ exports.uploadPaper = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: "No file received" });
     }
-
+    console.log("REQ FILE:", req.file);
     const result = await cloudinary.uploader.upload(req.file.path, {
       resource_type: "raw",
     });
+    console.log("CLOUDINARY URL:", result.secure_url);
 
     const { title, abstract, authorName, keywords } = req.body;
 
@@ -48,7 +49,7 @@ exports.getAllPapers = async (req, res) => {
   .populate("submittedBy", "name email role")
   .populate("assignedReviewers", "name email")
   .sort({ createdAt: -1 });
-
+    
     res.json(papers);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -79,7 +80,8 @@ exports.getPaperById = async (req, res) => {
     if (!paper) {
       return res.status(404).json({ message: "Paper not found" });
     }
-
+console.log("PAPER FROM DB:", paper);
+console.log("FILE URL:", paper.fileUrl);
     res.json(paper);
   } catch (error) {
     res.status(500).json({ message: error.message });
