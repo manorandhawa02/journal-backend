@@ -139,3 +139,61 @@ exports.getAdminStats = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+
+exports.getAdminStats = async (req, res) => {
+  try {
+    const total = await Paper.countDocuments();
+
+    const submitted = await Paper.countDocuments({
+      status: "Submitted",
+    });
+
+    const underReview = await Paper.countDocuments({
+      status: "Under Review",
+    });
+
+    const minorRevision = await Paper.countDocuments({
+      status: "Minor Revision",
+    });
+
+    const majorRevision = await Paper.countDocuments({
+      status: "Major Revision",
+    });
+
+    const accepted = await Paper.countDocuments({
+      status: "Accepted",
+    });
+
+    const rejected = await Paper.countDocuments({
+      status: "Rejected",
+    });
+
+    const inProgress = await Paper.countDocuments({
+      status: {
+        $in: [
+          "Submitted",
+          "Under Review",
+          "Minor Revision",
+          "Major Revision",
+        ],
+      },
+    });
+
+    res.json({
+      total,
+      submitted,
+      underReview,
+      minorRevision,
+      majorRevision,
+      accepted,
+      rejected,
+      inProgress,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};

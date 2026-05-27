@@ -93,6 +93,18 @@ exports.acceptPaper = async (req, res) => {
   try {
     const paper = await Paper.findById(req.params.id);
 
+    if (!paper) {
+      return res.status(404).json({
+        message: "Paper not found",
+      });
+    }
+
+    if (!paper.fileUrl) {
+      return res.status(400).json({
+        message: "Paper PDF missing",
+      });
+    }
+
     paper.status = "Accepted";
 
     paper.timeline.push({
@@ -102,9 +114,14 @@ exports.acceptPaper = async (req, res) => {
 
     await paper.save();
 
-    res.json({ message: "Paper accepted", paper });
+    res.json({
+      message: "Paper accepted",
+      paper,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 

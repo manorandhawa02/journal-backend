@@ -31,9 +31,9 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/paper", paperRoutes);
 app.use("/api/review", reviewRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/journal", journalRoutes);
-app.use("/api/published", publishedRoutes);
+app.use("/api/published", require("./routes/publishedRoutes"));
 app.use("/api/notifications", notificationRoutes);
 app.use("/uploads", express.static("uploads"));
 
