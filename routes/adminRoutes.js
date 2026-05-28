@@ -5,15 +5,25 @@ const { protect } = require("../middleware/authMiddleware");
 const { authorizeRoles } = require("../middleware/roleMiddleware");
 
 const {
-  getDashboardStats,
   getReviewers,
-  
+  getAdminStats,
+  getAuthorStats,
 } = require("../controllers/adminController");
 
+// ================= ADMIN STATS =================
+router.get(
+  "/stats",
+  protect,
+  authorizeRoles("admin"),
+  getAdminStats
+);
 
-// ================= STATS =================
-router.get("/stats", protect, authorizeRoles("admin"), getDashboardStats);
-
+// ================= AUTHOR STATS =================
+router.get(
+  "/author-stats",
+  protect,
+  getAuthorStats
+);
 
 // ================= REVIEWERS =================
 router.get(
@@ -22,15 +32,5 @@ router.get(
   authorizeRoles("admin"),
   getReviewers
 );
-
-
-const {
-  getAdminStats,
-  getAuthorStats,
-} = require("../controllers/adminController");
-
-router.get("/stats", protect, authorizeRoles("admin"), getAdminStats);
-
-router.get("/author-stats", protect, getAuthorStats);
 
 module.exports = router;

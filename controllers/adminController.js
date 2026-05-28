@@ -6,7 +6,7 @@ const Review = require("../models/Review");
 exports.getReviewers = async (req, res) => {
   try {
     const reviewers = await User.find({ role: "reviewer" }).select(
-      "_id name email"
+      "_id name email",
     );
 
     res.json(reviewers);
@@ -53,39 +53,6 @@ exports.assignReviewers = async (req, res) => {
   }
 };
 
-// ================= DASHBOARD STATS =================
-exports.getDashboardStats = async (req, res) => {
-  try {
-    const totalUsers = await User.countDocuments();
-    const totalPapers = await Paper.countDocuments();
-
-    const acceptedPapers = await Paper.countDocuments({
-      status: "Accepted",
-    });
-
-    const rejectedPapers = await Paper.countDocuments({
-      status: "Rejected",
-    });
-
-    const underReviewPapers = await Paper.countDocuments({
-      status: "Under Review",
-    });
-
-    const totalReviews = await Review.countDocuments();
-
-    res.json({
-      totalUsers,
-      totalPapers,
-      acceptedPapers,
-      rejectedPapers,
-      underReviewPapers,
-      totalReviews,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
 exports.getAuthorStats = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -111,7 +78,6 @@ exports.getAuthorStats = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 
 exports.getAdminStats = async (req, res) => {
   try {
@@ -140,10 +106,11 @@ exports.getAdminStats = async (req, res) => {
   }
 };
 
-
-
 exports.getAdminStats = async (req, res) => {
   try {
+    const papers = await Paper.find();
+
+    console.log("ALL PAPERS:", papers);
     const total = await Paper.countDocuments();
 
     const submitted = await Paper.countDocuments({
@@ -172,12 +139,7 @@ exports.getAdminStats = async (req, res) => {
 
     const inProgress = await Paper.countDocuments({
       status: {
-        $in: [
-          "Submitted",
-          "Under Review",
-          "Minor Revision",
-          "Major Revision",
-        ],
+        $in: ["Submitted", "Under Review", "Minor Revision", "Major Revision"],
       },
     });
 
