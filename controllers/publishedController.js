@@ -59,15 +59,18 @@ exports.publishPaper = async (req, res) => {
 // ================= GET ALL =================
 exports.getPublishedPapers = async (req, res) => {
   try {
-    const papers = await Paper.find({
-      status: "Accepted",
-    }).sort({ createdAt: -1 });
+
+    const papers = await PublishedPaper.find()
+      .sort({ createdAt: -1 });
 
     res.json(papers);
+
   } catch (error) {
+
     res.status(500).json({
       message: error.message,
     });
+
   }
 };
 

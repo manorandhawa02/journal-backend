@@ -4,12 +4,7 @@ const publishedPaperSchema = new mongoose.Schema(
   {
     title: String,
 
-    authors: [
-  {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
-  }
-],
+    authors: [String],
 
     abstract: String,
 
