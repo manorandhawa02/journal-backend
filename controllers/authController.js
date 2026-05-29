@@ -1,46 +1,50 @@
-
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 // REGISTER
 exports.register = async (req, res) => {
-  console.log("Register API hit");
-  console.log(req.body);
-  console.log(req.file);
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, orcid, journalCategory } = req.body;
 
-    // Check existing user
+    // CHECK EXISTING USER
     const userExists = await User.findOne({ email });
+
     if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({
+        message: "User already exists",
+      });
     }
 
-    // Hash password
+    // HASH PASSWORD
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
+    // CREATE USER
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
-      role
+      role,
+      orcid,
+      journalCategory,
     });
 
-    res.status(201).json({ 
-      message: "User registered", 
+    res.status(201).json({
+      message: "User registered successfully",
+
       user: {
-    id: user._id,
-    name: user.name,
-    email: user.email,
-    role: user.role
-  }
-
-     });
-
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        orcid: user.orcid,
+        journalCategory: user.journalCategory,
+      },
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({
+      error: error.message,
+    });
   }
 };
 
@@ -61,22 +65,26 @@ exports.login = async (req, res) => {
 
     // Token
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      {
+        id: user._id,
+        role: user.role,
+        orcid: user.orcid,
+        journalCategory: user.journalCategory,
+      },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "1d" },
     );
 
     res.json({
       message: "Login successful",
       token,
       user: {
-    id: user._id,
-    name: user.name,
-    email: user.email,
-    role: user.role
-  }
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
