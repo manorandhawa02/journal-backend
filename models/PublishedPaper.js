@@ -10,11 +10,29 @@ const publishedPaperSchema = new mongoose.Schema(
 
     fileUrl: String,
 
-    volume: Number,
-
-    issue: Number,
-
     doi: String,
+
+    volume: {
+      type: Number,
+      default: 1,
+    },
+
+    issue: {
+      type: Number,
+      default: 1,
+    },
+
+    issueTitle: {
+      type: String,
+      default: "Regular Issue",
+    },
+
+    category: {
+      type: String,
+      default: "Computer Science",
+    },
+
+    pages: String,
 
     publishedAt: {
       type: Date,

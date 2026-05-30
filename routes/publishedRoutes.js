@@ -25,14 +25,13 @@ router.post(
 // ================= GET ALL =================
 router.get(
   "/",
-  protect,
   getPublishedPapers
 );
+
 
 // ================= GET SINGLE =================
 router.get(
   "/:id",
-  protect,
   getPublishedPaperById
 );
 

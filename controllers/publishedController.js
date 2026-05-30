@@ -19,6 +19,16 @@ exports.publishPaper = async (req, res) => {
       });
     }
 
+    const lastPaper = await PublishedPaper.findOne().sort({ createdAt: -1 });
+
+    let volume = 1;
+    let issue = 1;
+
+    if (lastPaper) {
+      volume = lastPaper.volume;
+      issue = lastPaper.issue;
+    }
+
     // CREATE PUBLISHED PAPER
     const published = await PublishedPaper.create({
       title: paper.title,
@@ -34,11 +44,18 @@ exports.publishPaper = async (req, res) => {
 
       issue: req.body.issue || 1,
 
-      doi: `10.1000/journal.${Date.now()}`,
+      doi: `10.5678/GSJP.${new Date().getFullYear()}.${Math.floor(
+        1000 + Math.random() * 9000,
+      )}`,
+      category: "Computer Science",
     });
 
     // UPDATE STATUS
     paper.status = "Published";
+    paper.timeline.push({
+      action: "Published",
+      by: req.user.id,
+    });
 
     paper.publishedAt = new Date();
 
@@ -48,7 +65,6 @@ exports.publishPaper = async (req, res) => {
       message: "Paper published successfully",
       published,
     });
-
   } catch (error) {
     res.status(500).json({
       error: error.message,
@@ -59,27 +75,20 @@ exports.publishPaper = async (req, res) => {
 // ================= GET ALL =================
 exports.getPublishedPapers = async (req, res) => {
   try {
-
-    const papers = await PublishedPaper.find()
-      .sort({ createdAt: -1 });
+    const papers = await PublishedPaper.find().sort({ createdAt: -1 });
 
     res.json(papers);
-
   } catch (error) {
-
     res.status(500).json({
       message: error.message,
     });
-
   }
 };
 
 // ================= GET SINGLE =================
 exports.getPublishedPaperById = async (req, res) => {
   try {
-    const paper = await PublishedPaper.findById(
-      req.params.id
-    );
+    const paper = await PublishedPaper.findById(req.params.id);
 
     if (!paper) {
       return res.status(404).json({
@@ -88,7 +97,6 @@ exports.getPublishedPaperById = async (req, res) => {
     }
 
     res.json(paper);
-
   } catch (error) {
     res.status(500).json({
       error: error.message,
