@@ -33,21 +33,18 @@ exports.publishPaper = async (req, res) => {
     const published = await PublishedPaper.create({
       title: paper.title,
 
+      authors: [paper.authorName],
+
       abstract: paper.abstract,
 
       fileUrl: paper.fileUrl,
 
-      // ✅ FIXED
-      authors: [paper.authorName],
+      volume,
 
-      volume: req.body.volume || 1,
+      issue,
 
-      issue: req.body.issue || 1,
-
-      doi: `10.5678/GSJP.${new Date().getFullYear()}.${Math.floor(
-        1000 + Math.random() * 9000,
-      )}`,
-      category: "Computer Science",
+      doi: `10.1234/GSJ.V${volume}I${issue}.${paper._id}`,
+      category: paper.journalCategory,
     });
 
     // UPDATE STATUS

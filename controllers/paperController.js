@@ -13,7 +13,7 @@ exports.uploadPaper = async (req, res) => {
     });
     console.log("CLOUDINARY URL:", result.secure_url);
 
-    const { title, abstract, authorName, keywords } = req.body;
+    const { title, abstract, authorName, keywords, journalCategory } = req.body;
 
     const paper = await Paper.create({
       title,
@@ -22,6 +22,7 @@ exports.uploadPaper = async (req, res) => {
       keywords: keywords ? keywords.split(",") : [],
       submittedBy: req.user.id,
       fileUrl: result.secure_url,
+      journalCategory,
       status: "Submitted",
       revisionRound: 0,
       timeline: [
@@ -46,10 +47,10 @@ exports.uploadPaper = async (req, res) => {
 exports.getAllPapers = async (req, res) => {
   try {
     const papers = await Paper.find()
-  .populate("submittedBy", "name email role")
-  .populate("assignedReviewers", "name email")
-  .sort({ createdAt: -1 });
-    
+      .populate("submittedBy", "name email role")
+      .populate("assignedReviewers", "name email")
+      .sort({ createdAt: -1 });
+
     res.json(papers);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -74,14 +75,14 @@ exports.getPaperById = async (req, res) => {
   try {
     const paper = await Paper.findById(req.params.id).populate(
       "submittedBy",
-      "name email role"
+      "name email role",
     );
 
     if (!paper) {
       return res.status(404).json({ message: "Paper not found" });
     }
-console.log("PAPER FROM DB:", paper);
-console.log("FILE URL:", paper.fileUrl);
+    console.log("PAPER FROM DB:", paper);
+    console.log("FILE URL:", paper.fileUrl);
     res.json(paper);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -10,6 +10,10 @@ const paperSchema = new mongoose.Schema(
     authorName: String,
 
     keywords: [String],
+    journalCategory: {
+      type: String,
+      default: "Computer Science",
+    },
 
     // ✅ uploaded pdf url
     fileUrl: String,
@@ -97,7 +101,7 @@ const paperSchema = new mongoose.Schema(
 
     doi: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Paper", paperSchema);

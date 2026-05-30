@@ -11,6 +11,7 @@ const publishedPaperSchema = new mongoose.Schema(
     fileUrl: String,
 
     doi: String,
+    category: String,
 
     volume: {
       type: Number,
