@@ -1,5 +1,7 @@
 const cloudinary = require("../config/cloudinary");
 const Paper = require("../models/Paper");
+const sendEmail = require("../utils/mailer");
+const User = require("../models/User");
 
 // ================= UPLOAD PAPER =================
 exports.uploadPaper = async (req, res) => {
@@ -32,6 +34,21 @@ exports.uploadPaper = async (req, res) => {
         },
       ],
     });
+    const author = await User.findById(req.user.id);
+
+    await sendEmail(
+      author.email,
+      "Paper Submission Confirmation",
+      `
+  <h2>Paper Submitted</h2>
+
+  <p>
+  Your manuscript
+  <b>${paper.title}</b>
+  has been received.
+  </p>
+  `,
+    );
 
     res.status(201).json({
       message: "Paper uploaded successfully",
@@ -114,6 +131,21 @@ exports.acceptPaper = async (req, res) => {
     });
 
     await paper.save();
+    const author = await User.findById(paper.submittedBy);
+
+    await sendEmail(
+      author.email,
+      "Paper Accepted",
+      `
+  <h2>Congratulations!</h2>
+
+  <p>
+  Your paper
+  <b>${paper.title}</b>
+  has been accepted.
+  </p>
+  `,
+    );
 
     res.json({
       message: "Paper accepted",
@@ -141,6 +173,22 @@ exports.rejectPaper = async (req, res) => {
     });
 
     await paper.save();
+
+    const author = await User.findById(paper.submittedBy);
+
+    await sendEmail(
+      author.email,
+      "Paper Rejected",
+      `
+  <h2>Editorial Decision</h2>
+
+  <p>
+  Your paper
+  <b>${paper.title}</b>
+  has been rejected.
+  </p>
+  `,
+    );
 
     res.json({ message: "Paper rejected", paper });
   } catch (error) {

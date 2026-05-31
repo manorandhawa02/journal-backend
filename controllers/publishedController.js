@@ -1,5 +1,8 @@
 const PublishedPaper = require("../models/PublishedPaper");
 const Paper = require("../models/Paper");
+const User = require("../models/User");
+const sendEmail = require("../utils/mailer");
+
 
 // ================= PUBLISH PAPER =================
 exports.publishPaper = async (req, res) => {
@@ -57,6 +60,30 @@ exports.publishPaper = async (req, res) => {
     paper.publishedAt = new Date();
 
     await paper.save();
+
+    
+    const author = await User.findById(
+  paper.submittedBy
+);
+
+await sendEmail(
+  author.email,
+  "Paper Published",
+  `
+  <h2>Publication Notice</h2>
+
+  <p>
+  Your paper
+  <b>${paper.title}</b>
+  has been published.
+  </p>
+
+  <p>
+  DOI:
+  ${published.doi}
+  </p>
+  `
+);
 
     res.json({
       message: "Paper published successfully",

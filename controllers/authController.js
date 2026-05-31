@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const sendEmail = require("../utils/mailer");
 
 // REGISTER
 exports.register = async (req, res) => {
@@ -28,6 +29,22 @@ exports.register = async (req, res) => {
       orcid,
       journalCategory,
     });
+
+    await sendEmail(
+      user.email,
+      "Welcome to Scientific Journal Publication Platform",
+      `
+  <h2>Welcome ${user.name}</h2>
+
+  <p>
+  Your account has been created successfully.
+  </p>
+
+  <p>
+  Role: ${user.role}
+  </p>
+  `,
+    );
 
     res.status(201).json({
       message: "User registered successfully",
